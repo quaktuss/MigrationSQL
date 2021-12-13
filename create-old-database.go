@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/bxcodec/faker"
 	"math/rand"
+	"time"
 )
 
 type Tournament struct {
@@ -48,68 +49,61 @@ type Coach struct {
 	LicenseDate string
 }
 
-func getFakeTournament(games Games) Tournament {
+func getFakeTournament() Tournament {
+	rand.Seed(time.Now().UnixNano())
 	return Tournament{
-		IdTournament: games.IdGame,
-		IdGame:       rand.Intn(9),
+		IdTournament: rand.Intn(90-01) + 1,
+		IdGame:       Games{}.IdGame,
 		Date:         faker.Date(),
-		Duration: rand.Intn(100),
-		PlaceName: faker.Word(),
-		City: faker.FirstNameFemale(),
+		Duration:     rand.Intn(240-35) + 1,
+		PlaceName:    faker.Word(),
+		City:         faker.FirstNameFemale(),
 	}
 }
 
 func getFakeGames() Games {
+	rand.Seed(time.Now().UnixNano())
 	return Games{
-		IdGame: rand.Int(),
-		Name: faker.Word(),
+		IdGame: rand.Intn(90-01) + 1,
+		Name:   faker.Word(),
 	}
 }
 
 func getFakeStaff() Staff {
+	rand.Seed(time.Now().UnixNano())
 	return Staff{
-		IdStaff: rand.Intn(9),
-		Lastname: faker.LastName(),
+		IdStaff:   rand.Intn(90-01) + 1,
+		Lastname:  faker.LastName(),
 		Firstname: faker.FirstName(),
-		Gender: faker.Gender(),
-		Age: rand.Intn(50),
-		Wage: rand.Intn(9999),
+		Gender:    faker.Gender(),
+		Age:       rand.Intn(25-17) + 1,
+		Wage:      rand.Intn(2500-1500) + 1,
 	}
 }
 
-func getFakePlayer(games Games) Player {
+func getFakePlayer() Player {
+	rand.Seed(time.Now().UnixNano())
 	return Player{
-		IdPlayer: rand.Intn(9),
-		IdGame: games.IdGame,
-		Lastname: faker.LastName(),
+		IdPlayer:  rand.Intn(90-01) + 1,
+		IdGame:    Games{}.IdGame,
+		Lastname:  faker.LastName(),
 		Firstname: faker.FirstName(),
-		Gender: faker.Gender(),
-		Age: rand.Intn(50),
-		Wage: rand.Intn(9999),
+		Gender:    faker.Gender(),
+		Age:       rand.Intn(25-17) + 1,
+		Wage:      rand.Intn(2500-1500) + 1,
 	}
 }
 
-func getFakeCoach(games Games) Coach {
+func getFakeCoach() Coach {
+	rand.Seed(time.Now().UnixNano())
 	return Coach{
-		IdCoach: rand.Intn(9),
-		IdGame: games.IdGame,
-		Lastname: faker.LastName(),
-		Firstname: faker.FirstName(),
-		Gender: faker.Gender(),
-		Age: rand.Intn(50),
-		Wage: rand.Intn(9999),
+		IdCoach:     rand.Intn(99-01) + 1,
+		IdGame:      Games{}.IdGame,
+		Lastname:    faker.LastName(),
+		Firstname:   faker.FirstName(),
+		Gender:      faker.Gender(),
+		Age:         rand.Intn(25-17) + 1,
+		Wage:        rand.Intn(2500-1500) + 1,
 		LicenseDate: faker.Word(),
 	}
 }
-
-/*func main() {
-	db, err := sql.Open("sqlite3", "old-database.sqlite")
-
-	getFakeGames()
-	getFakeTournament(Games{})
-	getFakeStaff()
-	getFakePlayer(Games{})
-	getFakeCoach(Games{})
-
-
-}*/
