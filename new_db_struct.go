@@ -1,5 +1,7 @@
 package main
 
+import _ "github.com/mattn/go-sqlite3"
+
 type Tournament struct {
 	IdTournament int
 	IdGame       int
@@ -31,6 +33,7 @@ type Player struct {
 	Wage      int
 	Ranking   int
 }
+
 type Coach struct {
 	IdCoach     int
 	IdGame      int

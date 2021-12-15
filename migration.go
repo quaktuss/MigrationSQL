@@ -2,32 +2,94 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-func coachMigration(database string, coachId int) Coach {
-	db, errDB := sql.Open("sqlite", database)
-	CheckErr(errDB)
-
-	rows := db.QueryRow(`SELECT * FROM coach WHERE idCoach= ?`, coachId)
-	var idCoach, idGame, age, wage int
-	var lastname, firstname, gender, licenseDate string
-	var coach Coach
-	errRows := rows.Scan(&idCoach, lastname, firstname, gender, age, wage, licenseDate)
-	CheckErr(errRows)
-	coach = Coach{IdCoach: idCoach, IdGame: idGame, Lastname: lastname, Firstname: firstname, Gender: gender, Age: age, Wage: wage, LicenseDate: licenseDate}
-	return coach
-}
-
-func newCoach(database string)  {
-	db, err := sql.Open("sqlite3", "dest.sqlite")
+func newCoach(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
-	coachMigration(database, 2)
-	// insert
-	stmt, err1 := db.Prepare("INSERT INTO main.coach(idCoach, idGame, licenseDate, idEmployeeData) values(?,?,?,?)")
+
+	var coach = coachMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO main.coach(idCoach, idGame, licenseDate, idEmployeeData) values(?,?,?,?)`)
 	CheckErr(err1)
-	_, err2 := stmt.Exec()
+	_, err2 := stmt.Exec(coach.IdCoach, coach.IdGame, coach.LicenseDate, 3)
 	CheckErr(err2)
+	defer database.Close()
 }
+
+func newGame(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var games = gamesMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO game(idGame, name) values(?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(games.IdGame, games.Name)
+	CheckErr(err2)
+	defer database.Close()
+}
+
+func newTournament(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var tournament = tournamentMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO main.tournament(idTournament, idPlace, idGame, date, duration) values(?,?,?,?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(tournament.IdTournament, 0, tournament.IdGame, tournament.Date, tournament.Duration)
+	CheckErr(err2)
+	defer database.Close()
+}
+/*func newPlace(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var tournament = tournamentMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO place(idPlace, name, address, city) values(?,?,?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(tournament.IdTournament, 0, tournament.IdGame, tournament.Date, tournament.Duration)
+	CheckErr(err2)
+	defer database.Close()
+
+}*/
+
+func newPlayer(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var player = playerMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO main.player(idPlayer, idGame, ranking, idEmployeeData) values(?,?,?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(player.IdPlayer, player.IdGame, player.Ranking, 1234)
+	CheckErr(err2)
+	defer database.Close()
+
+}
+
+func newStaff(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var staff = staffMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO main.staff(idStaff, idEmployeeData) values(?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(staff.IdStaff, 1234)
+	CheckErr(err2)
+	defer database.Close()
+}
+
+/*func newEmployeeData(db *sql.DB) {
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+
+	var tournament = tournamentMigration(db)
+	stmt, err1 := database.Prepare(`INSERT INTO employee_data(idEmployee, lastname, firstname, gender, age, wage) values(?,?,?,?,?,?)`)
+	CheckErr(err1)
+	_, err2 := stmt.Exec(tournament.IdTournament, 0, tournament.IdGame, tournament.Date, tournament.Duration)
+	CheckErr(err2)
+	defer database.Close()
+
+}*/
 
 func CheckErr(err error) {
 	if err != nil {
@@ -36,7 +98,17 @@ func CheckErr(err error) {
 }
 
 func main() {
-newCoach("old-database.sqlite")
+	sqliteDatabase, err := sql.Open("sqlite3", "./old-database.sqlite")
+	CheckErr(err)
+
+	newCoach(sqliteDatabase)
+	//newEmployeeData(sqliteDatabase)
+	newGame(sqliteDatabase)
+	//newPlace(sqliteDatabase)
+	newPlayer(sqliteDatabase)
+	newStaff(sqliteDatabase)
+	newTournament(sqliteDatabase)
+
 }
 
 /*func createTable(db *sql.DB) {
