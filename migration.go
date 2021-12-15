@@ -2,48 +2,49 @@ package main
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3" // Import go-sqlite3 library
-	"log"
-	"os"
 )
 
-func main() {
-	os.Remove("new-db.sql") // I delete the file to avoid duplicated records.
-	// SQLite is a file based database.
+func coachMigration(database string, coachId int) Coach {
+	db, errDB := sql.Open("sqlite", database)
+	CheckErr(errDB)
 
-	log.Println("Creating sqlite-database.sqlite...")
-	file, err := os.Create("new-db.sql") // Create SQLite file
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	file.Close()
-	log.Println("new-db.sql created")
-
-	sqliteDatabase, _ := sql.Open("sqlite3", "./new-db.sql") // Open the created SQLite File
-	defer sqliteDatabase.Close()                             // Defer Closing the database
-	createTable(sqliteDatabase)                              // Create Database Tables
-
-	// INSERT RECORDS
-	insertStudent(sqliteDatabase, "0001", "Liana Kim", "Bachelor")
-	insertStudent(sqliteDatabase, "0002", "Glen Rangel", "Bachelor")
-	insertStudent(sqliteDatabase, "0003", "Martin Martins", "Master")
-	insertStudent(sqliteDatabase, "0004", "Alayna Armitage", "PHD")
-	insertStudent(sqliteDatabase, "0005", "Marni Benson", "Bachelor")
-	insertStudent(sqliteDatabase, "0006", "Derrick Griffiths", "Master")
-	insertStudent(sqliteDatabase, "0007", "Leigh Daly", "Bachelor")
-	insertStudent(sqliteDatabase, "0008", "Marni Benson", "PHD")
-	insertStudent(sqliteDatabase, "0009", "Klay Correa", "Bachelor")
-
-	// DISPLAY INSERTED RECORDS
-	displayStudents(sqliteDatabase)
+	rows := db.QueryRow(`SELECT * FROM coach WHERE idCoach= ?`, coachId)
+	var idCoach, idGame, age, wage int
+	var lastname, firstname, gender, licenseDate string
+	var coach Coach
+	errRows := rows.Scan(&idCoach, lastname, firstname, gender, age, wage, licenseDate)
+	CheckErr(errRows)
+	coach = Coach{IdCoach: idCoach, IdGame: idGame, Lastname: lastname, Firstname: firstname, Gender: gender, Age: age, Wage: wage, LicenseDate: licenseDate}
+	return coach
 }
 
-func createTable(db *sql.DB) {
+func newCoach(database string)  {
+	db, err := sql.Open("sqlite3", "dest.sqlite")
+	CheckErr(err)
+	coachMigration(database, 2)
+	// insert
+	stmt, err1 := db.Prepare("INSERT INTO main.coach(idCoach, idGame, licenseDate, idEmployeeData) values(?,?,?,?)")
+	CheckErr(err1)
+	_, err2 := stmt.Exec()
+	CheckErr(err2)
+}
+
+func CheckErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+newCoach("old-database.sqlite")
+}
+
+/*func createTable(db *sql.DB) {
 	createStudentTableSQL := `CREATE TABLE student (
-		"idStudent" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
+		"idStudent" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 		"code" TEXT,
 		"name" TEXT,
-		"program" TEXT		
+		"program" TEXT
 	  );` // SQL Statement for Create Table
 
 	log.Println("Create student table...")
@@ -57,17 +58,7 @@ func createTable(db *sql.DB) {
 
 // We are passing db reference connection from main to our method with other parameters
 func insertStudent(db *sql.DB, code string, name string, program string) {
-	log.Println("Inserting student record ...")
-	insertStudentSQL := `INSERT INTO student(code, name, program) VALUES (?, ?, ?)`
-	statement, err := db.Prepare(insertStudentSQL) // Prepare statement.
-	// This is good to avoid SQL injections
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	_, err = statement.Exec(code, name, program)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
+
 }
 
 func displayStudents(db *sql.DB) {
@@ -81,7 +72,8 @@ func displayStudents(db *sql.DB) {
 		var code string
 		var name string
 		var program string
-		row.Scan(&id, &code, &name, &program)
+		errScan := row.Scan(&id, &code, &name, &program)
+		CheckErr(errScan)
 		log.Println("Student: ", code, " ", name, " ", program)
 	}
-}
+}*/
