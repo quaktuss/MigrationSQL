@@ -12,6 +12,7 @@ type Tournament struct {
 	City         string
 }
 type Games struct {
+	//Index int
 	IdGame int
 	Name   string
 }
