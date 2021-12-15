@@ -108,31 +108,72 @@ func newPlayer(db *sql.DB) {
 
 }
 
-/*func newPlace(db *sql.DB) {
+func place(db *sql.DB) {
+	rows, _ := db.Query(`SELECT placeName, address,city FROM tournament`)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
+	var name, address, city string
 
-	var tournament = tournamentMigration(db)
-	stmt, err1 := database.Prepare(`INSERT INTO place(idPlace, name, address, city) values(?,?,?,?)`)
-	CheckErr(err1)
-	_, err2 := stmt.Exec(tournament.IdTournament, 0, tournament.IdGame, tournament.Date, tournament.Duration)
-	CheckErr(err2)
+	for rows.Next() {
+		err := rows.Scan(&name, &address, &city)
+		CheckErr(err)
+		stmt, err1 := database.Prepare(`INSERT INTO place(name, address, city) values(?,?,?)`)
+		CheckErr(err1)
+		_, err2 := stmt.Exec(name, address, city)
+		CheckErr(err2)
+	}
 	defer database.Close()
 
-}*/
+}
 
-/*func newEmployeeData(db *sql.DB) {
+func employeeData(db *sql.DB) {
+	rowsStaff, _ := db.Query(`SELECT lastname, firstname,gender,age,wage FROM staff`)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
+	var lastname, firstname, gender string
+	var age, wage int
 
-	var tournament = tournamentMigration(db)
-	stmt, err1 := database.Prepare(`INSERT INTO employee_data(idEmployee, lastname, firstname, gender, age, wage) values(?,?,?,?,?,?)`)
-	CheckErr(err1)
-	_, err2 := stmt.Exec(tournament.IdTournament, 0, tournament.IdGame, tournament.Date, tournament.Duration)
-	CheckErr(err2)
+	for rowsStaff.Next() {
+		err := rowsStaff.Scan(&lastname, &firstname, &gender, &age, &wage)
+		CheckErr(err)
+		stmt, err1 := database.Prepare(`INSERT INTO employee_data(lastname, firstname,gender,age,wage) values(?,?,?,?,?)`)
+		CheckErr(err1)
+		_, err2 := stmt.Exec(lastname, firstname, gender, age, wage)
+		CheckErr(err2)
+	}
 	defer database.Close()
 
-}*/
+	rowsPlayer, _ := db.Query(`SELECT lastname, firstname,gender,age,wage FROM player`)
+	CheckErr(err)
+	var lastnameP, firstnameP, genderP string
+	var ageP, wageP int
+
+	for rowsPlayer.Next() {
+		err := rowsPlayer.Scan(&lastnameP, &firstnameP, &genderP, &ageP, &wageP)
+		CheckErr(err)
+		stmt, err1 := database.Prepare(`INSERT INTO employee_data(lastname, firstname,gender,age,wage) values(?,?,?,?,?)`)
+		CheckErr(err1)
+		_, err2 := stmt.Exec(lastnameP, firstnameP, genderP, ageP, wageP)
+		CheckErr(err2)
+	}
+	defer database.Close()
+
+	rowsCoach, _ := db.Query(`SELECT lastname, firstname,gender,age,wage FROM coach`)
+	CheckErr(err)
+	var lastnameC, firstnameC, genderC string
+	var ageC, wageC int
+
+	for rowsCoach.Next() {
+		err := rowsCoach.Scan(&lastnameC, &firstnameC, &genderC, &ageC, &wageC)
+		CheckErr(err)
+		stmt, err1 := database.Prepare(`INSERT INTO employee_data(lastname, firstname,gender,age,wage) values(?,?,?,?,?)`)
+		CheckErr(err1)
+		_, err2 := stmt.Exec(lastnameC, firstnameC, genderC, ageC, wageC)
+		CheckErr(err2)
+	}
+	defer database.Close()
+
+}
 
 func CheckErr(err error) {
 	if err != nil {
@@ -148,8 +189,8 @@ func main() {
 	//newGame(sqliteDatabase)
 	//newPlayer(sqliteDatabase)
 	//newTournament(sqliteDatabase)
-	newStaff(sqliteDatabase)
-	//newEmployeeData(sqliteDatabase)
-	//newPlace(sqliteDatabase)
+	//newStaff(sqliteDatabase)
+	employeeData(sqliteDatabase)
+	//place(sqliteDatabase)
 
 }
