@@ -2,20 +2,20 @@ package main
 
 import "database/sql"
 
-func coachMigration(db *sql.DB) Coach {
-	rows := db.QueryRow(`SELECT idCoach, idGame, lastname, firstname, gender, age, wage, licenseDate FROM coach`)
+/*func coachMigration(db *sql.DB) Coach {
 
 	var idCoach, idGame, age, wage int
 	var lastname, firstname, gender, licenseDate string
+
 
 	err := rows.Scan(&idCoach, &idGame, &lastname, &firstname, &gender, &age, &wage, &licenseDate)
 	CheckErr(err)
 
 	return Coach{IdCoach: idCoach, IdGame: idGame, Lastname: lastname, Firstname: firstname, Gender: gender, LicenseDate: licenseDate}
-}
+}*/
 
 func gamesMigration(db *sql.DB) Games {
-	rows := db.QueryRow(`SELECT idGame, Name FROM games`)
+	rows, _ := db.Query(`SELECT idGame, Name FROM games`)
 
 	var idGame int
 	var name string
@@ -23,10 +23,11 @@ func gamesMigration(db *sql.DB) Games {
 	err := rows.Scan(&idGame, &name)
 	CheckErr(err)
 
+
 	return Games{IdGame: idGame, Name: name}
 }
 
-func playerMigration(db *sql.DB) Player  {
+func playerMigration(db *sql.DB) Player {
 	rows := db.QueryRow(`SELECT idPlayer, idGame, lastname, firstname, gender, age, wage, ranking FROM player`)
 
 	var idPlayer, idGame, age, wage, ranking int
@@ -35,11 +36,10 @@ func playerMigration(db *sql.DB) Player  {
 	err := rows.Scan(&idPlayer, &idGame, &lastname, &firstname, &gender, &age, &wage, &ranking)
 	CheckErr(err)
 
-	return Player{IdPlayer: idPlayer, IdGame: idGame, Lastname: lastname, Firstname: firstname, Gender: gender,Wage: wage,  Ranking: ranking}
+	return Player{IdPlayer: idPlayer, IdGame: idGame, Lastname: lastname, Firstname: firstname, Gender: gender, Wage: wage, Ranking: ranking}
 }
 
-func staffMigration(db *sql.DB) Staff {
-	rows := db.QueryRow(`SELECT idStaff, lastname, firstname, gender, age, wage FROM staff`)
+/*func staffMigration(db *sql.DB) Staff {
 
 	var idStaff, age, wage int
 	var lastname, firstname, gender string
@@ -49,8 +49,8 @@ func staffMigration(db *sql.DB) Staff {
 
 	return Staff{IdStaff: idStaff, Lastname: lastname, Firstname: firstname, Gender: gender, Age: age, Wage: wage}
 }
-
-func tournamentMigration(db *sql.DB) Tournament  {
+*/
+func tournamentMigration(db *sql.DB) Tournament {
 	rows := db.QueryRow(`SELECT idTournament, idGame, date, duration, placeName, address, city FROM tournament`)
 
 	var idTournament, idGame, duration int
