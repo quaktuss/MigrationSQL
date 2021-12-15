@@ -67,7 +67,8 @@ func newTournament(db *sql.DB) {
 }
 
 func newStaff(db *sql.DB) {
-	rows, _ := db.Query(`SELECT idStaff FROM staff`)
+	rows, err := db.Query(`SELECT idStaff FROM staff`)
+	CheckErr(err)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
