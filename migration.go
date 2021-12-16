@@ -12,6 +12,21 @@ func newCoach(db *sql.DB) {
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
+	query := `
+		create table if not exists coach
+(
+    idCoach        int not null
+        constraint coach_pk
+            primary key,
+    idGame         int not null,
+    licenseDate    text(30),
+    idEmployeeData int not null
+);
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
+
 	var idCoach, idGame, age, wage int
 	var lastname, firstname, gender, licenseDate string
 	for rows.Next() {
@@ -37,6 +52,20 @@ func newGame(db *sql.DB) {
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
+	query := `
+	create table if not exists game
+(
+    idGame integer not null
+        constraint game_pk
+            primary key,
+    name   text(30)
+);
+
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
+
 	var idGame int
 	var name string
 
@@ -57,6 +86,22 @@ func newTournament(db *sql.DB) {
 	rows, _ := db.Query(`SELECT * FROM tournament`)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
+
+	query := `
+		create table if not exists tournament
+		(
+			idTournament integer  not null
+				constraint tournament_pk
+					primary key,
+			idPlace      integer  not null,
+			idGame       integer  not null,
+			date         text(30) not null,
+			duration     integer
+		);
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
 
 	var idTournament, idGame, duration int
 	var date, address, city, placeName string
@@ -88,6 +133,19 @@ func newStaff(db *sql.DB) {
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
+	query := `
+create table if not exists staff
+(
+    idStaff        integer not null
+        constraint staff_pk
+            primary key,
+    idEmployeeData integer
+);
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
+
 	var idStaff, age, wage int
 	var lastname, firstname, gender string
 
@@ -115,6 +173,21 @@ func newPlayer(db *sql.DB) {
 	rows, _ := db.Query(`SELECT * FROM player`)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
+
+	query := `
+create table if not exists player
+(
+    idPlayer       integer not null
+        constraint player_pk
+            primary key,
+    idGame         integer not null,
+    ranking        integer,
+    idEmployeeData integer not null
+);
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
 
 	var idPlayer, idGame, age, wage, ranking int
 	var lastname, firstname, gender string
@@ -145,6 +218,21 @@ func place(db *sql.DB) {
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 	var name, address, city string
+
+	query := `
+create table if not exists place
+(
+    idPlace integer not null
+        constraint place_pk
+            primary key autoincrement,
+    name    text(30),
+    address text(30),
+    city    text(30)
+);
+    `
+
+	_, errDB := database.Prepare(query)
+	CheckErr(errDB)
 
 	for rows.Next() {
 		err := rows.Scan(&name, &address, &city)
