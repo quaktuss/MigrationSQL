@@ -7,7 +7,7 @@ create table if not exists coach(
     idEmployeeData int not null
 );
 
-create table game
+create table if not exists game
 (
     idGame integer not null
         constraint game_pk
