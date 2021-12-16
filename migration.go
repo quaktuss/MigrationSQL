@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -45,24 +46,33 @@ func newGame(db *sql.DB) {
 	defer database.Close()
 }
 
-func newTournament(db *sql.DB) {
-	rows, _ := db.Query(`SELECT idTournament, idGame, date, duration FROM tournament`)
+func newTournament(db *sql.DB, newdb *sql.DB) {
+	rows, _ := db.Query(`SELECT * FROM tournament`)
 	database, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
 	var idTournament, idGame, duration int
-	var date string
+	var date, address, city, placeName string
 
 	for rows.Next() {
-		err := rows.Scan(&idTournament, &idGame, &date, &duration)
+		err := rows.Scan(&idTournament, &idGame, &date, &duration, &placeName, &address, &city)
 		CheckErr(err)
 
-		stmt, err1 := database.Prepare(`INSERT INTO tournament(idTournament, idPlace, idGame, date, duration) values(?,?,?,?,?)`)
+		stmt, err1 := database.Prepare(`INSERT INTO place(name,address,city) values(?,?,?)`)
 		CheckErr(err1)
 
-		_, err2 := stmt.Exec(idTournament, 3, idGame, date, duration)
+		result, err2 := stmt.Exec(placeName, address, city)
 		CheckErr(err2)
+		idPlace, err := result.LastInsertId()
+
+		stmt2, err2 := database.Prepare(`INSERT INTO tournament(IdPlace,idGame,date,duration) values(?,?,?,?)`)
+		CheckErr(err1)
+		fmt.Println(idPlace, idGame, date, duration)
+		_, err2 = stmt2.Exec(idPlace, idGame, date, duration)
+		CheckErr(err2)
+
 	}
+
 	defer database.Close()
 }
 
@@ -175,6 +185,23 @@ func employeeData(db *sql.DB) {
 
 }
 
+func idPlaceInTournament(db *sql.DB) {
+	rows, _ := db.Query(`SELECT idPlace FROM place`)
+	database, err := sql.Open("sqlite3", "./dest.sqlite")
+	CheckErr(err)
+	var idplace int
+
+	for rows.Next() {
+		err := rows.Scan(&idplace)
+		CheckErr(err)
+		stmt, err1 := database.Prepare(`INSERT INTO tournament(idPlace) values(?)`)
+		CheckErr(err1)
+		_, err2 := stmt.Exec(idplace)
+		CheckErr(err2)
+	}
+	defer database.Close()
+}
+
 func CheckErr(err error) {
 	if err != nil {
 		panic(err)
@@ -183,14 +210,16 @@ func CheckErr(err error) {
 
 func main() {
 	sqliteDatabase, err := sql.Open("sqlite3", "./old-database.sqlite")
+	newsqliteDatabase, err := sql.Open("sqlite3", "./dest.sqlite")
 	CheckErr(err)
 
 	//newCoach(sqliteDatabase)
 	//newGame(sqliteDatabase)
 	//newPlayer(sqliteDatabase)
-	//newTournament(sqliteDatabase)
+	newTournament(sqliteDatabase, newsqliteDatabase)
 	//newStaff(sqliteDatabase)
-	employeeData(sqliteDatabase)
+	//employeeData(sqliteDatabase)
 	//place(sqliteDatabase)
+	//idPlaceInTournament(newsqliteDatabase)
 
 }
